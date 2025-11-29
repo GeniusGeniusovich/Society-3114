@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Society #3114</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            padding-top: 80px;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #000;
+            border-bottom: 2px solid #00ff00;
+            padding: 20px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 0 20px #00ff00;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            text-shadow: 0 0 10px #00ff00;
+            letter-spacing: 3px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .comment-form {
+            background-color: #001100;
+            border: 1px solid #00ff00;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            height: 100px;
+            background-color: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            border-radius: 3px;
+        }
+
+        .comment-form button {
+            background-color: #003300;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        .comment-form button:hover {
+            background-color: #00ff00;
+            color: #000;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .filters {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .filters button {
+            background-color: #001100;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px 15px;
+            margin: 0 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        .filters button:hover {
+            background-color: #003300;
+        }
+
+        .filters button.active {
+            background-color: #00ff00;
+            color: #000;
+        }
+
+        .comment {
+            background-color: #001100;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #00cc00;
+        }
+
+        .comment-id {
+            font-weight: bold;
+        }
+
+        .comment-timestamp {
+            color: #009900;
+        }
+
+        .comment-content {
+            margin-bottom: 15px;
+            word-wrap: break-word;
+        }
+
+        .comment-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .vote-btn {
+            background: none;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        .vote-btn:hover:not(:disabled) {
+            background-color: #003300;
+        }
+
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #009900;
+        }
+
+        .vote-btn.voted {
+            background-color: #00ff00;
+            color: #000;
+        }
+
+        .vote-count {
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .like-btn:hover:not(:disabled) {
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .dislike-btn:hover:not(:disabled) {
+            color: #ff3333;
+            text-shadow: 0 0 5px #ff3333;
+        }
+
+        .user-id {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.8em;
+            color: #009900;
+            background: #001100;
+            padding: 5px;
+            border: 1px solid #00ff00;
+            border-radius: 3px;
+        }
+
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -1px 0 #ff00ff;
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: -1px 0 #00ffff;
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(42px, 9999px, 44px, 0); }
+            5% { clip: rect(12px, 9999px, 59px, 0); }
+            10% { clip: rect(48px, 9999px, 29px, 0); }
+            15% { clip: rect(42px, 9999px, 73px, 0); }
+            20% { clip: rect(63px, 9999px, 27px, 0); }
+            25% { clip: rect(34px, 9999px, 55px, 0); }
+            30% { clip: rect(86px, 9999px, 73px, 0); }
+            35% { clip: rect(20px, 9999px, 20px, 0); }
+            40% { clip: rect(26px, 9999px, 60px, 0); }
+            45% { clip: rect(25px, 9999px, 66px, 0); }
+            50% { clip: rect(57px, 9999px, 98px, 0); }
+            55% { clip: rect(5px, 9999px, 46px, 0); }
+            60% { clip: rect(82px, 9999px, 31px, 0); }
+            65% { clip: rect(54px, 9999px, 27px, 0); }
+            70% { clip: rect(28px, 9999px, 99px, 0); }
+            75% { clip: rect(45px, 9999px, 69px, 0); }
+            80% { clip: rect(23px, 9999px, 85px, 0); }
+            85% { clip: rect(54px, 9999px, 84px, 0); }
+            90% { clip: rect(45px, 9999px, 47px, 0); }
+            95% { clip: rect(37px, 9999px, 39px, 0); }
+            100% { clip: rect(4px, 9999px, 14px, 0); }
+        }
+
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            5% { clip: rect(52px, 9999px, 74px, 0); }
+            10% { clip: rect(79px, 9999px, 85px, 0); }
+            15% { clip: rect(75px, 9999px, 5px, 0); }
+            20% { clip: rect(67px, 9999px, 61px, 0); }
+            25% { clip: rect(14px, 9999px, 79px, 0); }
+            30% { clip: rect(1px, 9999px, 66px, 0); }
+            35% { clip: rect(86px, 9999px, 30px, 0); }
+            40% { clip: rect(23px, 9999px, 98px, 0); }
+            45% { clip: rect(85px, 9999px, 72px, 0); }
+            50% { clip: rect(71px, 9999px, 75px, 0); }
+            55% { clip: rect(2px, 9999px, 48px, 0); }
+            60% { clip: rect(30px, 9999px, 16px, 0); }
+            65% { clip: rect(59px, 9999px, 50px, 0); }
+            70% { clip: rect(41px, 9999px, 62px, 0); }
+            75% { clip: rect(2px, 9999px, 82px, 0); }
+            80% { clip: rect(47px, 9999px, 73px, 0); }
+            85% { clip: rect(3px, 9999px, 27px, 0); }
+            90% { clip: rect(26px, 9999px, 55px, 0); }
+            95% { clip: rect(42px, 9999px, 97px, 0); }
+            100% { clip: rect(38px, 9999px, 49px, 0); }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1 class="glitch" data-text="Society #3114">Society #3114</h1>
+    </header>
+
+    <div class="container">
+        <div class="comment-form">
+            <textarea id="commentText" placeholder="Введите ваш комментарий..."></textarea>
+            <button onclick="addComment()">Отправить в матрицу</button>
+        </div>
+
+        <div class="filters">
+            <button onclick="sortComments('newest')" class="active">Новые</button>
+            <button onclick="sortComments('oldest')">Старые</button>
+            <button onclick="sortComments('popular')">Популярные</button>
+            <button onclick="sortComments('unpopular')">Отстойные</button>
+        </div>
+
+        <div id="commentsContainer"></div>
+    </div>
+
+    <div class="user-id" id="userIdDisplay"></div>
+
+    <script>
+        // Генерация уникального ID пользователя
+        function getUserId() {
+            let userId = localStorage.getItem('matrixUserId');
+            if (!userId) {
+                userId = 'USER-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('matrixUserId', userId);
+            }
+            return userId;
+        }
+
+        const userId = getUserId();
+        document.getElementById('userIdDisplay').textContent = `ID: ${userId}`;
+
+        let comments = JSON.parse(localStorage.getItem('matrixComments')) || [];
+        let currentSort = 'newest';
+
+        // Генератор ID для комментариев
+        function generateId() {
+            return 'COMM-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Добавление комментария
+        function addComment() {
+            const text = document.getElementById('commentText').value.trim();
+            if (!text) {
+                alert('Введите текст комментария!');
+                return;
+            }
+
+            const comment = {
+                id: generateId(),
+                text: text,
+                timestamp: new Date().toISOString(),
+                likes: 0,
+                dislikes: 0,
+                votes: 0,
+                voters: {} // Объект для хранения голосовавших пользователей
+            };
+
+            comments.unshift(comment);
+            saveComments();
+            renderComments();
+            document.getElementById('commentText').value = '';
+        }
+
+        // Голосование
+        function vote(commentId, type) {
+            const comment = comments.find(c => c.id === commentId);
+            if (!comment) return;
+
+            // Проверяем, голосовал ли уже этот пользователь
+            if (comment.voters[userId]) {
+                alert('Вы уже голосовали за этот комментарий!');
+                return;
+            }
+
+            // Записываем голос пользователя
+            comment.voters[userId] = type;
+
+            if (type === 'like') {
+                comment.likes++;
+                comment.votes++;
+            } else if (type === 'dislike') {
+                comment.dislikes++;
+                comment.votes--;
+            }
+
+            saveComments();
+            renderComments();
+        }
+
+        // Сохранение в localStorage
+        function saveComments() {
+            localStorage.setItem('matrixComments', JSON.stringify(comments));
+        }
+
+        // Сортировка комментариев
+        function sortComments(type) {
+            currentSort = type;
+            
+            // Обновляем активную кнопку
+            document.querySelectorAll('.filters button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            switch(type) {
+                case 'newest':
+                    comments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    break;
+                case 'oldest':
+                    comments.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                    break;
+                case 'popular':
+                    comments.sort((a, b) => b.votes - a.votes);
+                    break;
+                case 'unpopular':
+                    comments.sort((a, b) => a.votes - b.votes);
+                    break;
+            }
+
+            renderComments();
+        }
+
+        // Отображение комментариев
+        function renderComments() {
+            const container = document.getElementById('commentsContainer');
+            container.innerHTML = '';
+
+            if (comments.length === 0) {
+                container.innerHTML = '<div class="comment">Пока нет комментариев. Будьте первым!</div>';
+                return;
+            }
+
+            comments.forEach(comment => {
+                const commentEl = document.createElement('div');
+                commentEl.className = 'comment';
+                
+                const date = new Date(comment.timestamp);
+                const timeString = date.toLocaleString('ru-RU');
+
+                // Проверяем, голосовал ли текущий пользователь за этот комментарий
+                const userVoted = comment.voters && comment.voters[userId];
+                const userVoteType = userVoted ? comment.voters[userId] : null;
+
+                commentEl.innerHTML = `
+                    <div class="comment-header">
+                        <span class="comment-id">${comment.id}</span>
+                        <span class="comment-timestamp">${timeString}</span>
+                    </div>
+                    <div class="comment-content">${comment.text}</div>
+                    <div class="comment-actions">
+                        <button class="vote-btn like-btn ${userVoteType === 'like' ? 'voted' : ''}" 
+                                onclick="vote('${comment.id}', 'like')"
+                                ${userVoted ? 'disabled' : ''}>
+                            ↑ Лайк
+                        </button>
+                        <span class="vote-count">${comment.votes}</span>
+                        <button class="vote-btn dislike-btn ${userVoteType === 'dislike' ? 'voted' : ''}" 
+                                onclick="vote('${comment.id}', 'dislike')"
+                                ${userVoted ? 'disabled' : ''}>
+                            ↓ Дизлайк
+                        </button>
+                        <span style="color: #009900; font-size: 0.8em; margin-left: auto;">
+                            Голосов: ${comment.likes + comment.dislikes}
+                        </span>
+                    </div>
+                `;
+
+                container.appendChild(commentEl);
+            });
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            // Миграция старых комментариев (добавляем поле voters если его нет)
+            comments.forEach(comment => {
+                if (!comment.voters) {
+                    comment.voters = {};
+                }
+            });
+            saveComments();
+            
+            sortComments('newest');
+        });
+
+        // Обработка Enter для отправки комментария
+        document.getElementById('commentText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                addComment();
+            }
+        });
+    </script>
+</body>
+</html>
